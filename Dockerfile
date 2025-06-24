@@ -21,7 +21,7 @@ RUN chown -R shiny:shiny /srv/shiny-server
 EXPOSE 3838
 
 RUN apt-get update && sudo apt-get upgrade -y
-RUN apt-get install -y git
+RUN apt-get install -y git curl
 RUN git clone https://github.com/jakelever/cancermine.git
 RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
 RUN curl -o /srv/shiny-server/cancermine/cancermine_collated.tsv https://zenodo.org/records/7689627/files/cancermine_collated.tsv
