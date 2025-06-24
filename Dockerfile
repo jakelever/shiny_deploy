@@ -26,6 +26,8 @@ RUN git clone https://github.com/jakelever/cancermine.git
 RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
 RUN curl -o /srv/shiny-server/cancermine/cancermine_collated.tsv https://zenodo.org/records/7689627/files/cancermine_collated.tsv
 RUN curl -o /srv/shiny-server/cancermine/cancermine_sentences.tsv https://zenodo.org/records/7689627/files/cancermine_sentences.tsv
+RUN ls /srv/shiny-server/
+RUN ls /srv/shiny-server/cancermine
 
 # Start Shiny Server
 CMD ["/usr/bin/shiny-server"]
