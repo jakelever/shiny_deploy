@@ -25,7 +25,7 @@ RUN chown -R shiny:shiny /srv/shiny-server
 EXPOSE 3838
 
 RUN git clone https://github.com/jakelever/cancermine.git
-RUN cp -r cancermine/shiny/* /srv/shiny-server/
+# RUN cp -r cancermine/shiny/* /srv/shiny-server/
 RUN curl -o /srv/shiny-server/cancermine_collated.tsv https://zenodo.org/records/7689627/files/cancermine_collated.tsv
 RUN curl -o /srv/shiny-server/cancermine_sentences.tsv https://zenodo.org/records/7689627/files/cancermine_sentences.tsv
 RUN ls /srv/shiny-server/
