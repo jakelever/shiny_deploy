@@ -9,6 +9,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install any required R packages
 RUN R -e "install.packages(c('tidyverse', 'shiny', 'data.table'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('plotly', 'DT', 'reshape2', 'RColorBrewer', 'heatmaply'), repos='https://cloud.r-project.org/')"
 
 # Copy your Shiny app into the image
 COPY . /srv/shiny-server/
@@ -20,9 +21,9 @@ RUN chown -R shiny:shiny /srv/shiny-server
 EXPOSE 3838
 
 RUN git clone https://github.com/jakelever/cancermine.git
-COPY cancermine/shiny /srv/shiny-server/cancermine
-COPY curl -o /srv/shiny-server/cancermine/cancermine_collated.tsv https://zenodo.org/records/7689627/files/cancermine_collated.tsv
-COPY curl -o /srv/shiny-server/cancermine/cancermine_sentences.tsv https://zenodo.org/records/7689627/files/cancermine_sentences.tsv
+RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
+RUN curl -o /srv/shiny-server/cancermine/cancermine_collated.tsv https://zenodo.org/records/7689627/files/cancermine_collated.tsv
+RUN curl -o /srv/shiny-server/cancermine/cancermine_sentences.tsv https://zenodo.org/records/7689627/files/cancermine_sentences.tsv
 
 # Start Shiny Server
 CMD ["/usr/bin/shiny-server"]
