@@ -30,5 +30,7 @@ RUN curl -o /srv/shiny-server/cancermine_collated.tsv https://zenodo.org/records
 RUN curl -o /srv/shiny-server/cancermine_sentences.tsv https://zenodo.org/records/7689627/files/cancermine_sentences.tsv
 RUN ls /srv/shiny-server/
 
+COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
+
 # Start Shiny Server
 CMD ["/usr/bin/shiny-server"]
