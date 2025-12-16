@@ -7,7 +7,7 @@ FROM rocker/shiny-verse:latest
 # Install system libraries (if needed for packages)
 RUN apt-get update && sudo apt-get upgrade -y
 RUN apt-get install -y \
-    git curl vim gzip jq nginx supervisor \
+    git curl vim gzip jq nginx \
     libcurl4-gnutls-dev \
     libssl-dev \
     libxml2-dev \
@@ -78,7 +78,9 @@ RUN ln -s /etc/nginx/sites-available/landing /etc/nginx/sites-enabled/landing
 
 EXPOSE 80
 
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+# Copy startup script
+COPY start.sh /usr/local/bin/start.sh
+RUN chmod +x /usr/local/bin/start.sh
 
-# Start Shiny Server and nginx
-CMD ["/usr/bin/supervisord"]
+# Start Shiny + nginx
+CMD ["/usr/local/bin/start.sh"]
