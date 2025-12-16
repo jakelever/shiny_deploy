@@ -9,7 +9,7 @@ shiny-server &
 sleep 3
 
 # Preload specific apps
-bash /usr/local/bin/warmup.sh &
+# bash /usr/local/bin/warmup.sh &
 
 # Start nginx in foreground (so Docker health checks work)
 echo "Starting nginx..."
