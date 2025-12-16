@@ -54,7 +54,7 @@ COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 # Expose the port the app runs on
-EXPOSE 80 3838
+EXPOSE 80
 
 
 # Start Shiny Server
