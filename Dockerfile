@@ -1,5 +1,9 @@
 FROM rocker/shiny-verse:latest
 
+############
+# packages #
+############
+
 # Install system libraries (if needed for packages)
 RUN apt-get update && sudo apt-get upgrade -y
 RUN apt-get install -y \
@@ -9,16 +13,21 @@ RUN apt-get install -y \
     libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
+#########
+# shiny #
+#########
+
 # Install any required R packages
 RUN R -e "install.packages(c('plotly', 'DT', 'reshape2', 'heatmaply'), repos='https://cloud.r-project.org/')"
 
 RUN rm -rf /srv/shiny-server/*
 
-# Copy your Shiny app into the image
-# COPY . /srv/shiny-server/
-
 # Set permissions
 RUN chown -R shiny:shiny /srv/shiny-server
+
+##############
+# CancerMine #
+##############
 
 RUN git clone https://github.com/jakelever/cancermine.git
 RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
@@ -28,6 +37,9 @@ RUN curl -L -o /srv/shiny-server/cancermine/cancermine_sentences.tsv https://zen
 RUN date -d $(curl -s https://zenodo.org/api/records/16849846 | jq -r '.modified') "+%Y%m%d%H%M.%S" > /srv/shiny-server/cancermine/.timestamp
 RUN touch -t $(cat /srv/shiny-server/cancermine/.timestamp) /srv/shiny-server/cancermine/*.tsv
 
+#############
+# CIViCmine #
+#############
 
 RUN git clone https://github.com/jakelever/civicmine.git
 RUN cp -r civicmine/shiny /srv/shiny-server/civicmine
@@ -42,20 +54,31 @@ RUN cd /srv/shiny-server/civicmine/ && Rscript updateCIViC.R
 
 RUN ls /srv/shiny-server/
 
-# Set up nginx for reverse proxy
+###########################################
+# Simple landing page (for health checks) #
+###########################################
+RUN mkdir -p /srv/landing
+COPY landing.html /srv/landing/index.html
+
+#########
+# NGINX #
+#########
 RUN rm /etc/nginx/sites-enabled/default
+
 COPY nginx-cancermine.conf /etc/nginx/sites-available/cancermine
 RUN ln -s /etc/nginx/sites-available/cancermine /etc/nginx/sites-enabled/cancermine
 COPY nginx-civicmine.conf /etc/nginx/sites-available/civicmine
 RUN ln -s /etc/nginx/sites-available/civicmine /etc/nginx/sites-enabled/civicmine
+COPY nginx-landing.conf /etc/nginx/sites-available/landing
+RUN ln -s /etc/nginx/sites-available/landing /etc/nginx/sites-enabled/landing
+
+##############
+# running it #
+##############
+
+EXPOSE 80
 
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
-
-# Expose the port the app runs on
-EXPOSE 80
-
-
-# Start Shiny Server
+# Start Shiny Server and nginx
 CMD ["/usr/bin/supervisord"]
