@@ -10,8 +10,8 @@ sleep 3
 
 # Preload specific apps
 echo "Warming up Shiny apps..."
-curl -s http://localhost:3838/cancermine/ > /dev/null
-curl -s http://localhost:3838/civicmine/ > /dev/null
+curl -s -o /dev/null http://localhost:3838/cancermine/ &
+curl -s -o /dev/null http://localhost:3838/civicmine/ &
 
 # Start nginx in foreground (so Docker health checks work)
 echo "Starting nginx..."
