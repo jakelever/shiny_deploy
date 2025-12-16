@@ -3,7 +3,7 @@ FROM rocker/shiny-verse:latest
 # Install system libraries (if needed for packages)
 RUN apt-get update && sudo apt-get upgrade -y
 RUN apt-get install -y \
-    git curl vim gzip jq \
+    git curl vim gzip jq nginx supervisor \
     libcurl4-gnutls-dev \
     libssl-dev \
     libxml2-dev \
@@ -42,11 +42,20 @@ RUN cd /srv/shiny-server/civicmine/ && Rscript updateCIViC.R
 
 RUN ls /srv/shiny-server/
 
+# Set up nginx for reverse proxy
+RUN rm /etc/nginx/sites-enabled/default
+COPY nginx-cancermine.conf /etc/nginx/sites-available/cancermine
+RUN ln -s /etc/nginx/sites-available/cancermine /etc/nginx/sites-enabled/cancermine
+COPY nginx-civicmine.conf /etc/nginx/sites-available/civicmine
+RUN ln -s /etc/nginx/sites-available/civicmine /etc/nginx/sites-enabled/civicmine
+
+COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+
 # COPY shiny-server.conf /etc/shiny-server/shiny-server.conf
 
 # Expose the port the app runs on
-EXPOSE 3838
+EXPOSE 80 3838
 
 
 # Start Shiny Server
-CMD ["/usr/bin/shiny-server"]
+CMD ["/usr/bin/supervisord"]
