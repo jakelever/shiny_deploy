@@ -81,6 +81,8 @@ EXPOSE 80
 # Copy startup script
 COPY start.sh /usr/local/bin/start.sh
 RUN chmod +x /usr/local/bin/start.sh
+COPY warmup.sh /usr/local/bin/warmup.sh
+RUN chmod +x /usr/local/bin/warmup.sh
 
 # Start Shiny + nginx
 CMD ["/usr/local/bin/start.sh"]

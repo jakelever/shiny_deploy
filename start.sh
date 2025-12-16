@@ -9,9 +9,7 @@ shiny-server &
 sleep 3
 
 # Preload specific apps
-echo "Warming up Shiny apps..."
-curl -s -o /dev/null http://localhost:3838/cancermine/ &
-curl -s -o /dev/null http://localhost:3838/civicmine/ &
+bash /usr/local/bin/warmup.sh &
 
 # Start nginx in foreground (so Docker health checks work)
 echo "Starting nginx..."
