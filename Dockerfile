@@ -18,7 +18,7 @@ RUN apt-get install -y \
 #########
 
 # Install any required R packages
-RUN R -e "install.packages(c('plotly', 'DT', 'reshape2', 'heatmaply'), repos='https://cloud.r-project.org/')"
+RUN R -e "install.packages(c('plotly', 'DT', 'reshape2', 'heatmaply', 'gplots'), repos='https://cloud.r-project.org/')"
 
 RUN rm -rf /srv/shiny-server/*
 
