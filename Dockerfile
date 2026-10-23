@@ -70,7 +70,7 @@ COPY landing.html /srv/landing/index.html
 #########
 # NGINX #
 #########
-RUN rm /etc/nginx/sites-enabled/default
+RUN rm -f /etc/nginx/sites-enabled/default
 
 COPY nginx-cancermine.conf /etc/nginx/sites-available/cancermine
 RUN ln -s /etc/nginx/sites-available/cancermine /etc/nginx/sites-enabled/cancermine
