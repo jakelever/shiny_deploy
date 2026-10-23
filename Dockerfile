@@ -35,21 +35,25 @@ RUN chown -R shiny:shiny /srv/shiny-server
 COPY download_zenodo_files.sh /usr/local/bin/download_zenodo_files.sh
 RUN chmod +x /usr/local/bin/download_zenodo_files.sh
 
-RUN git clone https://github.com/jakelever/cancermine.git
+# Adding the git repo (rather than RUN git clone) means the latest commit is used instead of Docker's cache
+ADD https://github.com/jakelever/cancermine.git#master cancermine
 RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
 RUN echo "<script></script>" > /srv/shiny-server/cancermine/google-analytics.js
 ADD https://zenodo.org/api/records/1156241 /tmp/cancermine_record.json
 RUN download_zenodo_files.sh /tmp/cancermine_record.json /srv/shiny-server/cancermine cancermine_collated.tsv cancermine_sentences.tsv
+# Put the sentences in an indexed SQLite database so the app doesn't need to hold them in memory
+RUN cd /srv/shiny-server/cancermine/ && Rscript prepareSentencesDB.R
 
 #############
 # CIViCmine #
 #############
 
-RUN git clone https://github.com/jakelever/civicmine.git
+ADD https://github.com/jakelever/civicmine.git#master civicmine
 RUN cp -r civicmine/shiny /srv/shiny-server/civicmine
 RUN echo "<script></script>" > /srv/shiny-server/civicmine/google-analytics.js
 ADD https://zenodo.org/api/records/1472826 /tmp/civicmine_record.json
 RUN download_zenodo_files.sh /tmp/civicmine_record.json /srv/shiny-server/civicmine civicmine_collated.tsv civicmine_sentences.tsv
+RUN cd /srv/shiny-server/civicmine/ && Rscript prepareSentencesDB.R
 # Likewise, re-fetching a CIViC nightly file means the CIViC download reruns when CIViC has changed
 ADD https://civicdb.org/downloads/nightly/nightly-ClinicalEvidenceSummaries.tsv /tmp/civic_nightly_check.tsv
 RUN cd /srv/shiny-server/civicmine/ && Rscript updateCIViC.R && rm /tmp/civic_nightly_check.tsv
