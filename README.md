@@ -8,6 +8,8 @@ docker build -t jakelever/shiny_deploy .
 docker push jakelever/shiny_deploy
 ```
 
+The build always uses the latest published versions of the CancerMine and CIViCmine datasets on Zenodo (through their concept record IDs) and the latest CIViC nightly release, so a rebuild picks up new versions without any changes here.
+
 ## Running it locally
 
 ```

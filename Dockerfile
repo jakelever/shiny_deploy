@@ -29,13 +29,17 @@ RUN chown -R shiny:shiny /srv/shiny-server
 # CancerMine #
 ##############
 
+# Data comes from the latest version of each Zenodo dataset. The concept record ID (e.g. 1156241)
+# redirects to the latest version. ADD re-fetches the record on every build, so the download step
+# after it reruns (instead of using Docker's cache) whenever a new version has been published.
+COPY download_zenodo_files.sh /usr/local/bin/download_zenodo_files.sh
+RUN chmod +x /usr/local/bin/download_zenodo_files.sh
+
 RUN git clone https://github.com/jakelever/cancermine.git
 RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
 RUN echo "<script></script>" > /srv/shiny-server/cancermine/google-analytics.js
-RUN curl -L -o /srv/shiny-server/cancermine/cancermine_collated.tsv https://zenodo.org/records/16849846/files/cancermine_collated.tsv
-RUN curl -L -o /srv/shiny-server/cancermine/cancermine_sentences.tsv https://zenodo.org/records/16849846/files/cancermine_sentences.tsv
-RUN date -d $(curl -s https://zenodo.org/api/records/16849846 | jq -r '.modified') "+%Y%m%d%H%M.%S" > /srv/shiny-server/cancermine/.timestamp
-RUN touch -t $(cat /srv/shiny-server/cancermine/.timestamp) /srv/shiny-server/cancermine/*.tsv
+ADD https://zenodo.org/api/records/1156241 /tmp/cancermine_record.json
+RUN download_zenodo_files.sh /tmp/cancermine_record.json /srv/shiny-server/cancermine cancermine_collated.tsv cancermine_sentences.tsv
 
 #############
 # CIViCmine #
@@ -44,13 +48,11 @@ RUN touch -t $(cat /srv/shiny-server/cancermine/.timestamp) /srv/shiny-server/ca
 RUN git clone https://github.com/jakelever/civicmine.git
 RUN cp -r civicmine/shiny /srv/shiny-server/civicmine
 RUN echo "<script></script>" > /srv/shiny-server/civicmine/google-analytics.js
-RUN curl -L -R -o /srv/shiny-server/civicmine/civicmine_collated.tsv.gz https://zenodo.org/records/7689629/files/civicmine_collated.tsv.gz
-RUN curl -L -R -o /srv/shiny-server/civicmine/civicmine_sentences.tsv.gz https://zenodo.org/records/7689629/files/civicmine_sentences.tsv.gz
-RUN gunzip /srv/shiny-server/civicmine/civicmine_collated.tsv.gz
-RUN gunzip /srv/shiny-server/civicmine/civicmine_sentences.tsv.gz
-RUN date -d $(curl -s https://zenodo.org/api/records/7689629 | jq -r '.modified') "+%Y%m%d%H%M.%S" > /srv/shiny-server/civicmine/.timestamp
-RUN touch -t $(cat /srv/shiny-server/civicmine/.timestamp) /srv/shiny-server/civicmine/*.tsv
-RUN cd /srv/shiny-server/civicmine/ && Rscript updateCIViC.R
+ADD https://zenodo.org/api/records/1472826 /tmp/civicmine_record.json
+RUN download_zenodo_files.sh /tmp/civicmine_record.json /srv/shiny-server/civicmine civicmine_collated.tsv civicmine_sentences.tsv
+# Likewise, re-fetching a CIViC nightly file means the CIViC download reruns when CIViC has changed
+ADD https://civicdb.org/downloads/nightly/nightly-ClinicalEvidenceSummaries.tsv /tmp/civic_nightly_check.tsv
+RUN cd /srv/shiny-server/civicmine/ && Rscript updateCIViC.R && rm /tmp/civic_nightly_check.tsv
 
 RUN ls /srv/shiny-server/
 
