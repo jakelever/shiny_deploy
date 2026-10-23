@@ -35,9 +35,10 @@ RUN chown -R shiny:shiny /srv/shiny-server
 COPY download_zenodo_files.sh /usr/local/bin/download_zenodo_files.sh
 RUN chmod +x /usr/local/bin/download_zenodo_files.sh
 
-# Adding the git repo (rather than RUN git clone) means the latest commit is used instead of Docker's cache
-ADD https://github.com/jakelever/cancermine.git#master cancermine
-RUN cp -r cancermine/shiny /srv/shiny-server/cancermine
+# Adding the tarball of the master branch (rather than RUN git clone) means the latest commit is used
+# instead of a cached clone. It is a plain URL download (which works with Kaniko) and is extracted below.
+ADD https://github.com/jakelever/cancermine/archive/refs/heads/master.tar.gz /tmp/cancermine.tar.gz
+RUN tar xzf /tmp/cancermine.tar.gz && rm /tmp/cancermine.tar.gz && cp -r cancermine-master/shiny /srv/shiny-server/cancermine
 RUN echo "<script></script>" > /srv/shiny-server/cancermine/google-analytics.js
 ADD https://zenodo.org/api/records/1156241 /tmp/cancermine_record.json
 RUN download_zenodo_files.sh /tmp/cancermine_record.json /srv/shiny-server/cancermine cancermine_collated.tsv cancermine_sentences.tsv
@@ -48,8 +49,8 @@ RUN cd /srv/shiny-server/cancermine/ && Rscript prepareSentencesDB.R
 # CIViCmine #
 #############
 
-ADD https://github.com/jakelever/civicmine.git#master civicmine
-RUN cp -r civicmine/shiny /srv/shiny-server/civicmine
+ADD https://github.com/jakelever/civicmine/archive/refs/heads/master.tar.gz /tmp/civicmine.tar.gz
+RUN tar xzf /tmp/civicmine.tar.gz && rm /tmp/civicmine.tar.gz && cp -r civicmine-master/shiny /srv/shiny-server/civicmine
 RUN echo "<script></script>" > /srv/shiny-server/civicmine/google-analytics.js
 ADD https://zenodo.org/api/records/1472826 /tmp/civicmine_record.json
 RUN download_zenodo_files.sh /tmp/civicmine_record.json /srv/shiny-server/civicmine civicmine_collated.tsv civicmine_sentences.tsv
