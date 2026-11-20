@@ -7,11 +7,20 @@ FROM rocker/shiny-verse:latest
 # Install system libraries (if needed for packages)
 RUN apt-get update && sudo apt-get upgrade -y
 RUN apt-get install -y \
-    git curl vim gzip jq nginx \
+    git curl vim gzip jq \
     libcurl4-gnutls-dev \
     libssl-dev \
     libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
+
+# Install the latest stable nginx from nginx.org
+RUN curl -fsSL https://nginx.org/keys/nginx_signing.key -o /usr/share/keyrings/nginx.asc \
+    && . /etc/os-release \
+    && echo "deb [signed-by=/usr/share/keyrings/nginx.asc] http://nginx.org/packages/ubuntu $VERSION_CODENAME nginx" > /etc/apt/sources.list.d/nginx.list \
+    && printf "Package: *\nPin: origin nginx.org\nPin-Priority: 900\n" > /etc/apt/preferences.d/99nginx \
+    && apt-get update && apt-get install -y nginx \
+    && rm -rf /var/lib/apt/lists/*
+RUN nginx -v
 
 #########
 # shiny #
