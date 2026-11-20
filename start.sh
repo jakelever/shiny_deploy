@@ -13,7 +13,7 @@ sleep 3
 
 # Remove nginx's stock default site (it clashes with our default_server landing page). The Dockerfile also
 # removes it, but that deletion can be lost when an image is built from cached layers (e.g. with Kaniko)
-rm -f /etc/nginx/sites-enabled/default
+rm -f /etc/nginx/conf.d/default.conf
 
 # Start nginx in foreground (so Docker health checks work)
 echo "Starting nginx..."

@@ -79,14 +79,13 @@ COPY landing.html /srv/landing/index.html
 #########
 # NGINX #
 #########
-RUN rm -f /etc/nginx/sites-enabled/default
-
-COPY nginx-cancermine.conf /etc/nginx/sites-available/cancermine
-RUN ln -s /etc/nginx/sites-available/cancermine /etc/nginx/sites-enabled/cancermine
-COPY nginx-civicmine.conf /etc/nginx/sites-available/civicmine
-RUN ln -s /etc/nginx/sites-available/civicmine /etc/nginx/sites-enabled/civicmine
-COPY nginx-landing.conf /etc/nginx/sites-available/landing
-RUN ln -s /etc/nginx/sites-available/landing /etc/nginx/sites-enabled/landing
+# The nginx.org package has no sites-available/sites-enabled; its nginx.conf includes /etc/nginx/conf.d/*.conf.
+# Remove its stock default site and add ours there instead.
+RUN rm -f /etc/nginx/conf.d/default.conf
+COPY nginx-cancermine.conf /etc/nginx/conf.d/cancermine.conf
+COPY nginx-civicmine.conf /etc/nginx/conf.d/civicmine.conf
+COPY nginx-landing.conf /etc/nginx/conf.d/landing.conf
+RUN nginx -t
 
 ##############
 # running it #
